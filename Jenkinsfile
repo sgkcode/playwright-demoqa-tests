@@ -33,13 +33,16 @@ pipeline {
                 sh 'mvn test -Dgroups=ui -Dheadless=true'
             }
         }
+
+        stage('Reports') {
+            steps {
+                junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
+                archiveArtifacts artifacts: 'target/allure-results/**', allowEmptyArchive: true
+            }
+        }
     }
 
     post {
-        always {
-            junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
-            archiveArtifacts artifacts: 'target/allure-results/**', allowEmptyArchive: true
-        }
         failure {
             echo 'Pipeline failed — check the archived allure-results for screenshots.'
         }
