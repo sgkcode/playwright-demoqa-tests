@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.learning</groupId>
-    <artifactId>selenide-google-tests</artifactId>
+    <artifactId>playwright-demoqa-tests</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -13,7 +13,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <selenide.version>7.3.3</selenide.version>
+        <playwright.version>1.44.0</playwright.version>
         <junit.version>5.10.2</junit.version>
         <rest-assured.version>5.4.0</rest-assured.version>
         <allure.version>2.26.0</allure.version>
@@ -24,11 +24,11 @@
     </properties>
 
     <dependencies>
-        <!-- Selenide — wraps Selenium, auto-downloads WebDriver -->
+        <!-- Playwright — browser automation, auto-downloads browsers -->
         <dependency>
-            <groupId>com.codeborne</groupId>
-            <artifactId>selenide</artifactId>
-            <version>${selenide.version}</version>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>${playwright.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -55,12 +55,6 @@
         </dependency>
 
         <!-- Allure reporting -->
-        <dependency>
-            <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-selenide</artifactId>
-            <version>${allure.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-rest-assured</artifactId>
@@ -97,6 +91,24 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <plugins>

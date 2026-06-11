@@ -1,6 +1,17 @@
-# selenide-google-tests
+# playwright-demoqa-tests
 
-Maven + Selenide + REST Assured learning project. UI tests target google.com; API tests target the JSONPlaceholder public fake REST API.
+Maven + Playwright + REST Assured learning project. UI tests target demoqa.com; API tests target the demoqa.com BookStore API.
+
+**GitHub:** https://github.com/sgkcode/playwright-demoqa-tests  
+**Default branch:** `main`
+
+## First-time setup
+
+Install Playwright browsers before running UI tests (only needed once per machine / Docker image):
+
+```bash
+mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
+```
 
 ## Running Tests
 
@@ -15,59 +26,73 @@ mvn test -Dgroups=ui
 mvn test -Dgroups=api
 
 # Single class
-mvn test -Dtest=GoogleSearchTest
+mvn test -Dtest=ElementsTest
 
-# Headless Chrome
+# Headless Chromium
 mvn test -Dheadless=true
 
-# Different browser
+# Different browser (chromium / firefox / webkit)
 mvn test -Dbrowser=firefox
 ```
 
 ## Allure Report
 
 ```bash
-mvn allure:serve          # generate + open in browser (requires allure CLI or mvn plugin)
+mvn allure:serve          # generate + open in browser
 mvn allure:report         # generate to target/site/allure-maven-plugin/
 ```
+
+## CI / Jenkins
+
+```bash
+docker compose up -d      # start Jenkins on http://localhost:8080
+```
+
+Required Jenkins plugin: **Docker Pipeline**. The `Jenkinsfile` uses a `maven:3.9-eclipse-temurin-17`
+Docker agent and runs tests headless. Named volumes `maven-repo` and `playwright-browsers` cache
+dependencies between builds.
 
 ## Configuration
 
 Override any property via `-D` flag or `src/test/resources/config.properties`:
 
-| Property      | Default                 | Notes                    |
-|---------------|-------------------------|--------------------------|
-| browser       | chrome                  | chrome / firefox / edge  |
-| base.url      | https://www.google.com  |                          |
-| browser.size  | 1920x1080               |                          |
-| headless      | false                   |                          |
-| timeout       | 10000                   | Element wait in ms       |
+| Property        | Default               | Notes                          |
+|-----------------|-----------------------|--------------------------------|
+| base.url        | https://demoqa.com    |                                |
+| browser         | chromium              | chromium / firefox / webkit    |
+| browser.width   | 1920                  |                                |
+| browser.height  | 1080                  |                                |
+| headless        | false                 |                                |
+| timeout         | 10000                 | Default timeout in ms          |
 
 ## Project Structure
 
 ```
-src/test/java/com/learning/google/
+src/test/java/com/learning/demoqa/
 ├── config/
-│   └── TestConfig.java           OWNER interface — reads system props then config.properties
+│   └── TestConfig.java                   OWNER interface — reads system props then config.properties
 ├── pages/
-│   ├── BasePage.java             Cookie consent helper
-│   ├── GoogleHomePage.java       Search input + open
-│   ├── GoogleSearchResultsPage.java  Results, stats, tab navigation
-│   └── GoogleImagesPage.java     Image grid
+│   ├── BasePage.java                     page + baseUrl; scrollAndClick helper
+│   └── elements/
+│       ├── TextBoxPage.java              fill + submit form, read output section
+│       ├── CheckBoxPage.java             expand tree, check Home, read selected items
+│       ├── RadioButtonPage.java          select Yes/Impressive, read success text
+│       ├── WebTablesPage.java            add / search / delete rows
+│       └── ButtonsPage.java             double-click, right-click, single click
 └── tests/
-    ├── BaseTest.java             Selenide + Allure setup, browser lifecycle
+    ├── BaseTest.java                     Playwright browser lifecycle + Allure screenshot on AfterEach
     ├── ui/
-    │   ├── GoogleSearchTest.java   Basic search, parametrized, result state
-    │   └── GoogleImagesTest.java   Images tab navigation
+    │   ├── ElementsTest.java             TextBox, CheckBox, RadioButton, Buttons
+    │   └── WebTablesTest.java            add / search / delete rows
     └── api/
-        └── JsonPlaceholderApiTest.java  CRUD + filter tests on jsonplaceholder.typicode.com
+        └── BookStoreApiTest.java         GET books, GET book by ISBN, token generation
 ```
 
 ## Key Patterns
 
-- **Page Objects** — each page is a class; methods return page instances for fluent chaining
-- **BasePage** — handles Google's cookie consent dialog (EU regions)
-- **BaseTest** — `@BeforeAll` registers Allure+Selenide listener; `@AfterEach` closes the browser
+- **Page Objects** — constructor navigates to the page; methods return `this` for fluent chaining
+- **BasePage** — holds `Page page` and `String baseUrl`; page objects receive both via constructor
+- **BaseTest** — `@BeforeAll` launches browser; `@BeforeEach` opens a fresh context+page; `@AfterEach` attaches screenshot to Allure and closes context
 - **TestConfig** — OWNER-based typesafe config; properties can be overridden at runtime via `-D`
-- **Parametrized tests** — `@ParameterizedTest` + `@ValueSource` in `GoogleSearchTest`
-- **API tests** do not extend `BaseTest` — they configure REST Assured independently
+- **API tests** do not extend `BaseTest` — configure `RestAssured.baseURI` in `@BeforeAll`
+- **Locators** are declared as `private final Locator` fields; Playwright evaluates them lazily on interaction
