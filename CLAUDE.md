@@ -48,7 +48,7 @@ mvn allure:report         # generate to target/site/allure-maven-plugin/
 docker compose up -d      # start Jenkins on http://localhost:8080
 ```
 
-Required Jenkins plugin: **Docker Pipeline**. The `Jenkinsfile` uses a `maven:3.9-eclipse-temurin-17`
+Required Jenkins plugin: **Docker Pipeline**. The `Jenkinsfile` uses a `maven:3.9-eclipse-temurin-21`
 Docker agent and runs tests headless. Named volumes `maven-repo` and `playwright-browsers` cache
 dependencies between builds.
 

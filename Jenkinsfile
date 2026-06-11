@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.9-eclipse-temurin-17'
+            image 'maven:3.9-eclipse-temurin-21'
             // root so Playwright can install Chromium system dependencies via apt-get
             // Named volumes persist Maven deps and browser binaries across runs
             args '--ipc=host -u root -v maven-repo:/root/.m2 -v playwright-browsers:/root/.cache/ms-playwright'
