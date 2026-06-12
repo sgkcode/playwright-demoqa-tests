@@ -23,13 +23,17 @@ pipeline {
 
         stage('API tests') {
             steps {
-                sh 'mvn test -Dgroups=api'
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh 'mvn test -Dgroups=api'
+                }
             }
         }
 
         stage('UI tests') {
             steps {
-                sh 'mvn test -Dgroups=ui -Dheadless=true -Dtimeout=30000'
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh 'mvn test -Dgroups=ui -Dheadless=true -Dtimeout=30000'
+                }
             }
         }
 
