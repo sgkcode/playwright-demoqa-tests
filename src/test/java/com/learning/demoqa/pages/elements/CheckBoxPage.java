@@ -18,7 +18,7 @@ public class CheckBoxPage extends BasePage {
     }
 
     public CheckBoxPage expandAll() {
-        expandAllButton.click();
+        expandAllButton.click(new Locator.ClickOptions().setForce(true));
         return this;
     }
 

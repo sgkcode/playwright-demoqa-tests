@@ -3,6 +3,7 @@ package com.learning.demoqa.pages.elements;
 import com.learning.demoqa.pages.BasePage;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitForSelectorState;
 
 public class WebTablesPage extends BasePage {
 
@@ -33,6 +34,8 @@ public class WebTablesPage extends BasePage {
         salaryInput.fill(salary);
         departmentInput.fill(department);
         submitButton.click();
+        page.locator("#registration-form-modal").waitFor(
+                new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
         return this;
     }
 
@@ -42,16 +45,27 @@ public class WebTablesPage extends BasePage {
     }
 
     public boolean hasRecord(String firstName) {
-        return page.locator(".rt-tbody .rt-tr-group")
-                   .filter(new Locator.FilterOptions().setHasText(firstName))
-                   .filter(new Locator.FilterOptions().setHas(page.locator("span[title='Delete']")))
-                   .count() > 0;
+        Locator target = page.locator(".rt-tbody .rt-tr-group")
+                             .filter(new Locator.FilterOptions().setHasText(firstName))
+                             .filter(new Locator.FilterOptions().setHas(page.locator("span[title='Delete']")));
+        try {
+            target.first().waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.ATTACHED).setTimeout(5000));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public int getVisibleRowCount() {
-        return page.locator(".rt-tbody .rt-tr-group")
-                   .filter(new Locator.FilterOptions().setHas(page.locator("span[title='Delete']")))
-                   .count();
+        Locator anyRow = page.locator(".rt-tbody .rt-tr-group")
+                             .filter(new Locator.FilterOptions().setHas(page.locator("span[title='Delete']")));
+        try {
+            anyRow.first().waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.ATTACHED).setTimeout(5000));
+        } catch (Exception ignored) {
+        }
+        return anyRow.count();
     }
 
     public WebTablesPage deleteRecord(String firstName) {
@@ -59,7 +73,7 @@ public class WebTablesPage extends BasePage {
             .filter(new Locator.FilterOptions().setHasText(firstName))
             .locator("span[title='Delete']")
             .first()
-            .click();
+            .click(new Locator.ClickOptions().setForce(true));
         return this;
     }
 }

@@ -36,7 +36,7 @@ pipeline {
         stage('Reports') {
             steps {
                 junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
-                archiveArtifacts artifacts: 'target/allure-results/**', allowEmptyArchive: true
+                allure results: [[path: 'target/allure-results']]
             }
         }
     }
