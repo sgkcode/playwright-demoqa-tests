@@ -16,9 +16,8 @@ pipeline {
     stages {
         stage('Install Playwright browsers') {
             steps {
-                // Downloads Chromium + installs all required system libs (runs apt-get internally)
-                // No-op on subsequent runs when the browser version is already cached
-                sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install --with-deps chromium"'
+                sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install chromium"'
+                sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install-deps chromium"'
             }
         }
 
@@ -30,7 +29,7 @@ pipeline {
 
         stage('UI tests') {
             steps {
-                sh 'mvn test -Dgroups=ui -Dheadless=true'
+                sh 'mvn test -Dgroups=ui -Dheadless=true -Dtimeout=30000'
             }
         }
 
