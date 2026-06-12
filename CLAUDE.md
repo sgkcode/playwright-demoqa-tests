@@ -47,12 +47,36 @@ mvn allure:report         # generate to target/site/allure-maven-plugin/
 
 ## CI / Jenkins
 
-```bash
-docker compose up -d      # start Jenkins on http://localhost:8080
+Jenkins runs on AWS EC2 (t3.small, Ubuntu 24.04) as a Docker container.
+
+**Infrastructure stack:**
+```
+AWS EC2 t3.small
+└── Ubuntu 24.04 (host OS)
+    └── Docker
+        ├── Jenkins container (permanent, port 8080)
+        └── Maven agent container (maven:3.9-eclipse-temurin-21, spawned per build, removed after)
 ```
 
-Required Jenkins plugin: **Docker Pipeline**, **Allure Jenkins Plugin**.  
-The `Jenkinsfile` exposes three build parameters:
+- Jenkins uses **Docker-outside-of-Docker (DooD)** — `/var/run/docker.sock` is mounted so Jenkins talks to the host Docker daemon to spawn agent containers
+- Named volumes `maven-repo` and `playwright-browsers` cache dependencies between builds
+- The repo is cloned on EC2 at `~/playwright-demoqa-tests` only to bootstrap Jenkins (`Dockerfile` + `docker-compose.yml`); test code is pulled by Jenkins from GitHub on each build
+
+**Bootstrap Jenkins on a new server:**
+```bash
+git clone https://github.com/sgkcode/playwright-demoqa-tests.git ~/playwright-demoqa-tests
+cd ~/playwright-demoqa-tests
+DOCKER_GID=$(getent group docker | cut -d: -f3) sudo -E docker compose up -d --build
+```
+
+**Required Jenkins plugins:** Docker Pipeline, Allure Jenkins Plugin, GitHub Integration  
+**Allure tool:** name `allure`, version `2.26.0`, install automatically
+
+**GitHub webhook:** `http://<ec2-ip>:8080/github-webhook/` — SSL verification disabled (no domain/cert yet)
+
+**Known issue:** `maven:3.9-amazoncorretto-21` is incompatible with Playwright — Amazon Linux 2 ships GLIBC 2.26, Playwright requires 2.27+. Always use `eclipse-temurin-21` as the agent image.
+
+**Build parameters:**
 
 | Parameter       | Default    | Description                                      |
 |-----------------|------------|--------------------------------------------------|
@@ -60,7 +84,9 @@ The `Jenkinsfile` exposes three build parameters:
 | BROWSER         | chromium   | chromium / firefox / webkit                      |
 | PARALLEL_COUNT  | 2          | JUnit 5 parallel thread count                    |
 
-When `TEST_CLASS` is empty the pipeline runs API and UI test suites in parallel. When set it runs just that class headless with the selected browser.
+When `TEST_FILTER` is empty the pipeline runs API and UI test suites in parallel. When set it runs just that filter headless with the selected browser.
+
+**Note:** EC2 public IP changes on every stop/start — assign an Elastic IP to make it permanent.
 
 ## Configuration
 

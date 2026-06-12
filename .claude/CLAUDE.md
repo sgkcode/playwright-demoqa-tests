@@ -71,7 +71,22 @@ mvn allure:serve                                      # open Allure report
 mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install chromium"
 ```
 
-## Jenkins build parameters
+## Jenkins / AWS
+
+Jenkins runs on AWS EC2 (t3.small) as a Docker container. Agent image: `maven:3.9-eclipse-temurin-21`.
+
+**Do NOT use `maven:3.9-amazoncorretto-21`** — Amazon Linux 2 GLIBC 2.26 is incompatible with Playwright (requires 2.27+).
+
+EC2 public IP changes on stop/start — check current IP before SSH or webhook updates.
+
+To update Jenkins infra after changing `Dockerfile` or `docker-compose.yml`:
+```bash
+ssh -i jenkins-key.pem ubuntu@<ip>
+cd ~/playwright-demoqa-tests && git pull
+DOCKER_GID=$(getent group docker | cut -d: -f3) sudo -E docker compose up -d --build
+```
+
+**Build parameters:**
 
 | Parameter       | Default   | Effect                                                   |
 |-----------------|-----------|----------------------------------------------------------|
