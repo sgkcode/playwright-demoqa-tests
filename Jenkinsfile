@@ -22,18 +22,21 @@ pipeline {
             }
         }
 
-        stage('API tests') {
-            steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh 'mvn test -Dgroups=api'
+        stage('Tests') {
+            parallel {
+                stage('API tests') {
+                    steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            sh 'mvn test -Dgroups=api'
+                        }
+                    }
                 }
-            }
-        }
-
-        stage('UI tests') {
-            steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh 'mvn test -Dgroups=ui -Dheadless=true -Dtimeout=30000'
+                stage('UI tests') {
+                    steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            sh 'mvn test -Dgroups=ui -Dheadless=true -Dtimeout=30000'
+                        }
+                    }
                 }
             }
         }

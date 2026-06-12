@@ -12,21 +12,23 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInstance;
 
 import java.io.ByteArrayInputStream;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BaseTest {
 
     protected static final TestConfig CONFIG = ConfigFactory.create(TestConfig.class);
 
-    private static Playwright playwright;
-    private static Browser browser;
+    private Playwright playwright;
+    private Browser browser;
 
     protected BrowserContext context;
     protected Page page;
 
     @BeforeAll
-    static void launchBrowser() {
+    void launchBrowser() {
         playwright = Playwright.create();
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
                 .setHeadless(CONFIG.headless());
@@ -56,7 +58,7 @@ public class BaseTest {
     }
 
     @AfterAll
-    static void closeBrowser() {
+    void closeBrowser() {
         browser.close();
         playwright.close();
     }
