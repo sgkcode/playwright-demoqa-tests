@@ -1,6 +1,6 @@
-package com.learning.demoqa.pages.elements;
+package com.learning.demoqa.ui.pages.elements;
 
-import com.learning.demoqa.pages.BasePage;
+import com.learning.demoqa.ui.pages.BasePage;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.WaitForSelectorState;
@@ -10,7 +10,6 @@ public class WebTablesPage extends BasePage {
     private final Locator addButton = page.locator("#addNewRecordButton");
     private final Locator searchBox = page.locator("#searchBox");
 
-    // Registration form modal fields
     private final Locator firstNameInput = page.locator("#firstName");
     private final Locator lastNameInput = page.locator("#lastName");
     private final Locator emailInput = page.locator("#userEmail");
@@ -21,7 +20,11 @@ public class WebTablesPage extends BasePage {
 
     public WebTablesPage(Page page, String baseUrl) {
         super(page, baseUrl);
+    }
+
+    public WebTablesPage open() {
         page.navigate(baseUrl + "/webtables");
+        return this;
     }
 
     public WebTablesPage addRecord(String firstName, String lastName, String email,

@@ -1,14 +1,14 @@
-package com.learning.demoqa.pages;
+package com.learning.demoqa.ui.pages;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 
-public class BasePage {
+public abstract class BasePage {
 
     protected final Page page;
     protected final String baseUrl;
 
-    public BasePage(Page page, String baseUrl) {
+    protected BasePage(Page page, String baseUrl) {
         this.page = page;
         this.baseUrl = baseUrl;
     }

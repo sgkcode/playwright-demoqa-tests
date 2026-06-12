@@ -2,10 +2,26 @@ pipeline {
     agent {
         docker {
             image 'maven:3.9-eclipse-temurin-21'
-            // root so Playwright can install Chromium system dependencies via apt-get
-            // Named volumes persist Maven deps and browser binaries across runs
             args '--ipc=host -u root -v maven-repo:/root/.m2 -v playwright-browsers:/root/.cache/ms-playwright'
         }
+    }
+
+    parameters {
+        string(
+            name: 'TEST_FILTER',
+            defaultValue: '',
+            description: 'Surefire -Dtest filter: ElementsTest, ElementsTest#verifyYesRadioButtonSelectionTest, ElementsTest+WebTablesTest (empty = all)'
+        )
+        choice(
+            name: 'BROWSER',
+            choices: ['chromium', 'firefox', 'webkit'],
+            description: 'Browser for UI tests'
+        )
+        string(
+            name: 'PARALLEL_COUNT',
+            defaultValue: '2',
+            description: 'Number of parallel test threads'
+        )
     }
 
     options {
@@ -16,26 +32,34 @@ pipeline {
     stages {
         stage('Install Playwright browsers') {
             steps {
-                sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install chromium"'
-                sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install-deps chromium"'
-                sh 'apt-get install -y --no-install-recommends libxcursor1 libgtk-3-0t64 libpangocairo-1.0-0 libcairo-gobject2 libgdk-pixbuf-2.0-0'
+                sh "mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args=\"install ${params.BROWSER}\""
+                sh "mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args=\"install-deps ${params.BROWSER}\""
             }
         }
 
         stage('Tests') {
-            parallel {
-                stage('API tests') {
-                    steps {
+            steps {
+                script {
+                    String parallelArg = "-Djunit.jupiter.execution.parallel.config.fixed.parallelism=${params.PARALLEL_COUNT}"
+                    String browserArg  = "-Dbrowser=${params.BROWSER}"
+
+                    if (params.TEST_FILTER) {
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            sh 'mvn test -Dgroups=api'
+                            sh "mvn test -Dtest=${params.TEST_FILTER} -Dheadless=true ${browserArg} -Dtimeout=30000 ${parallelArg}"
                         }
-                    }
-                }
-                stage('UI tests') {
-                    steps {
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            sh 'mvn test -Dgroups=ui -Dheadless=true -Dtimeout=30000'
-                        }
+                    } else {
+                        parallel(
+                            'API tests': {
+                                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                    sh "mvn test -Dgroups=api ${parallelArg}"
+                                }
+                            },
+                            'UI tests': {
+                                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                    sh "mvn test -Dgroups=ui -Dheadless=true ${browserArg} -Dtimeout=30000 ${parallelArg}"
+                                }
+                            }
+                        )
                     }
                 }
             }

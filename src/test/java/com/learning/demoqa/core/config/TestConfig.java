@@ -1,4 +1,4 @@
-package com.learning.demoqa.config;
+package com.learning.demoqa.core.config;
 
 import org.aeonbits.owner.Config;
 

@@ -1,6 +1,7 @@
 package com.learning.demoqa.tests;
 
-import com.learning.demoqa.config.TestConfig;
+import com.learning.demoqa.ui.actions.App;
+import com.learning.demoqa.core.config.TestConfig;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
@@ -25,7 +26,9 @@ public class BaseTest {
     private Browser browser;
 
     protected BrowserContext context;
-    protected Page page;
+    protected App app;
+
+    private Page page;
 
     @BeforeAll
     void launchBrowser() {
@@ -46,6 +49,7 @@ public class BaseTest {
                 .setViewportSize(CONFIG.browserWidth(), CONFIG.browserHeight()));
         page = context.newPage();
         page.setDefaultTimeout(CONFIG.timeout());
+        app = new App(page, CONFIG.baseUrl());
     }
 
     @AfterEach

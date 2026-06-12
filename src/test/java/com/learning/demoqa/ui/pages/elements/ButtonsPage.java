@@ -1,6 +1,6 @@
-package com.learning.demoqa.pages.elements;
+package com.learning.demoqa.ui.pages.elements;
 
-import com.learning.demoqa.pages.BasePage;
+import com.learning.demoqa.ui.pages.BasePage;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.MouseButton;
@@ -16,20 +16,24 @@ public class ButtonsPage extends BasePage {
 
     public ButtonsPage(Page page, String baseUrl) {
         super(page, baseUrl);
-        page.navigate(baseUrl + "/buttons");
     }
 
-    public ButtonsPage doubleClick() {
+    public ButtonsPage open() {
+        page.navigate(baseUrl + "/buttons");
+        return this;
+    }
+
+    public ButtonsPage doubleClickDoubleClickMeButton() {
         doubleClickButton.dblclick();
         return this;
     }
 
-    public ButtonsPage rightClick() {
+    public ButtonsPage rightClickRightClickMeButton() {
         rightClickButton.click(new Locator.ClickOptions().setButton(MouseButton.RIGHT));
         return this;
     }
 
-    public ButtonsPage singleClick() {
+    public ButtonsPage clickClickMeButton() {
         dynamicClickButton.click();
         return this;
     }

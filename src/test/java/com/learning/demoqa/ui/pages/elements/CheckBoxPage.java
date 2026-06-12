@@ -1,6 +1,6 @@
-package com.learning.demoqa.pages.elements;
+package com.learning.demoqa.ui.pages.elements;
 
-import com.learning.demoqa.pages.BasePage;
+import com.learning.demoqa.ui.pages.BasePage;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 
@@ -14,7 +14,11 @@ public class CheckBoxPage extends BasePage {
 
     public CheckBoxPage(Page page, String baseUrl) {
         super(page, baseUrl);
+    }
+
+    public CheckBoxPage open() {
         page.navigate(baseUrl + "/checkbox");
+        return this;
     }
 
     public CheckBoxPage expandAll() {

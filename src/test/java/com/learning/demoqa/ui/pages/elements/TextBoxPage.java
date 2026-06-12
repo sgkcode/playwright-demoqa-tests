@@ -1,6 +1,6 @@
-package com.learning.demoqa.pages.elements;
+package com.learning.demoqa.ui.pages.elements;
 
-import com.learning.demoqa.pages.BasePage;
+import com.learning.demoqa.ui.pages.BasePage;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 
@@ -18,7 +18,11 @@ public class TextBoxPage extends BasePage {
 
     public TextBoxPage(Page page, String baseUrl) {
         super(page, baseUrl);
+    }
+
+    public TextBoxPage open() {
         page.navigate(baseUrl + "/text-box");
+        return this;
     }
 
     public TextBoxPage fillFullName(String name) {
