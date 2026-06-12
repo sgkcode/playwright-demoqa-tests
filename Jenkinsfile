@@ -18,6 +18,7 @@ pipeline {
             steps {
                 sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install chromium"'
                 sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install-deps chromium"'
+                sh 'apt-get install -y --no-install-recommends libxcursor1 libgtk-3-0t64 libpangocairo-1.0-0 libcairo-gobject2 libgdk-pixbuf-2.0-0'
             }
         }
 
@@ -39,6 +40,7 @@ pipeline {
 
         stage('Reports') {
             steps {
+                sh 'chmod -R a+w target/ || true'
                 junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
                 allure results: [[path: 'target/allure-results']]
             }
