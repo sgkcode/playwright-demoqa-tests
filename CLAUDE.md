@@ -10,7 +10,7 @@ Maven + Playwright + REST Assured learning project. UI tests target demoqa.com; 
 Install Playwright browsers before running UI tests (only needed once per machine / Docker image):
 
 ```bash
-mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
+mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install chromium"
 ```
 
 ## Running Tests

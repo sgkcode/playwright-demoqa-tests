@@ -18,7 +18,7 @@ pipeline {
             steps {
                 // Downloads Chromium + installs all required system libs (runs apt-get internally)
                 // No-op on subsequent runs when the browser version is already cached
-                sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps chromium"'
+                sh 'mvn -q exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install --with-deps chromium"'
             }
         }
 

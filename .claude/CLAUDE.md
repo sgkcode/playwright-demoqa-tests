@@ -31,7 +31,7 @@ Key selectors by page:
 mvn test -Dtest=ElementsTest#textBoxOutputMatchesInput   # single test method
 mvn test -Dheadless=true -Dgroups=ui                     # headless UI run
 mvn allure:serve                                          # open Allure report
-mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"  # install browsers
+mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.classpathScope=test -Dexec.args="install chromium"  # install browsers
 ```
 
 ## Useful Claude Code skills
